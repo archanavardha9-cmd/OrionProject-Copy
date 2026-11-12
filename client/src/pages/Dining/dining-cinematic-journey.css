@@ -1,0 +1,197 @@
+/* ---------------------------------------------------------------
+   Cinematic Dining Page – scroll‑driven video styles
+   --------------------------------------------------------------- */
+
+/* Base wrapper and scroll track */
+.dining-cinematic-wrapper {
+  font-family: var(--font-sans);
+  color: var(--cj-text-pure);
+  position: relative;
+}
+
+.dj-scroll-track {
+  /* Tall scroll track creates travel distance */
+  height: 500vh; /* Adjust if needed */
+  position: relative;
+}
+
+.dj-sticky-viewport {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: #000; /* fallback */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Full‑bleed video */
+.dj-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+/* Subtle vignetting to improve contrast */
+.dj-vignette-scrim {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.35) 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* HUD – mute button and scene pills */
+.dj-hud-header {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 3;
+  pointer-events: auto;
+}
+
+.dj-btn-hud {
+  background: var(--cj-glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--cj-glass-border);
+  border-radius: 30px;
+  padding: 6px 12px;
+  color: var(--cj-text-pure);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.dj-scene-nav-pills {
+  display: flex;
+  gap: 8px;
+}
+
+.dj-scene-pill {
+  background: var(--cj-glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--cj-glass-border);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.85rem;
+  color: var(--cj-text-pure);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.dj-scene-pill.is-active {
+  background: var(--cj-accent-coral);
+  color: #fff;
+}
+
+/* Bottom scroll hint */
+.dj-hud-bottom {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  color: var(--cj-text-pure);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* Sections overlay */
+.dj-scenes-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none; /* text panels handle their own pointer events */
+}
+
+.dj-section {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4rem;
+  text-align: center;
+  pointer-events: auto;
+}
+
+/* Text panel – semi‑transparent glass background for readability */
+.dj-text-panel {
+  max-width: 800px;
+  background: rgba(8,12,20,0.55);
+  backdrop-filter: blur(12px);
+  border-radius: 12px;
+  padding: 2rem 2.5rem;
+  color: #fff;
+}
+
+.dj-title {
+  font-size: clamp(2.4rem,6vw,4.2rem);
+  margin-bottom: 0.6rem;
+  font-weight: 700;
+}
+
+.dj-lead {
+  font-size: 1.1rem;
+  line-height: 1.5;
+  margin-bottom: 1.2rem;
+}
+
+.dj-brand-icon {
+  color: var(--cj-accent-coral);
+  margin-bottom: 0.8rem;
+}
+
+.dj-brand-title {
+  font-size: clamp(2rem,5vw,3.2rem);
+  margin: 0.5rem 0;
+}
+
+.dj-brand-desc {
+  font-size: 1rem;
+  line-height: 1.4;
+  margin-bottom: 1rem;
+}
+
+.dj-cta-btn {
+  display: inline-block;
+  background: var(--cj-accent-coral);
+  color: #fff;
+  padding: 0.6rem 1.4rem;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.2s, transform 0.1s;
+}
+.dj-cta-btn:hover {
+  background: #ff6b4a;
+  transform: translateY(-2px);
+}
+
+/* Section colour identities – subtle overlays */
+.dj-section-0 .dj-text-panel { background: rgba(8,12,20,0.55); }
+.dj-section-1 .dj-text-panel { background: rgba(30,20,10,0.55); }
+.dj-section-2 .dj-text-panel { background: rgba(10,25,30,0.55); }
+.dj-section-3 .dj-text-panel { background: rgba(20,10,25,0.55); }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .dj-text-panel { padding: 1.5rem 1.8rem; }
+  .dj-title { font-size: clamp(2rem,7vw,3rem); }
+  .dj-brand-title { font-size: clamp(1.6rem,6vw,2.4rem); }
+}
+

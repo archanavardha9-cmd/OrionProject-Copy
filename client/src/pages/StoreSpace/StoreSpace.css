@@ -1,0 +1,622 @@
+/* ==========================================================================
+   STORES DIRECTORY & CONSTELLATION STYLES
+   ========================================================================== */
+
+.om-stores-page {
+  background-color: var(--bg-primary);
+  min-height: 85vh;
+  padding-bottom: 90px;
+}
+
+/* Hero */
+.om-stores-hero {
+  padding: clamp(40px, 5vw, 70px) 0 36px;
+  background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.om-stores-hero-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (min-width: 900px) {
+  .om-stores-hero-inner {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+.om-stores-title {
+  font-size: clamp(2.4rem, 4.5vw, 3.8rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+
+.om-stores-lead {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  max-width: 680px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* View Switcher */
+.om-view-toggle-wrap {
+  display: inline-flex;
+  background: var(--bg-card);
+  padding: 4px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-medium);
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+
+.om-view-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  transition: all 0.25s ease;
+}
+
+.om-view-toggle-btn.active {
+  background: var(--bg-dark);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Toolbar */
+.om-stores-directory-wrap {
+  padding-top: 40px;
+}
+
+.om-stores-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media (min-width: 860px) {
+  .om-stores-toolbar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+/* Search Box */
+.om-stores-search-box {
+  position: relative;
+  flex: 1;
+  max-width: 480px;
+}
+
+.om-search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent-gold-hover);
+  pointer-events: none;
+}
+
+.om-stores-search-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 44px 0 46px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-medium);
+  background: var(--bg-card);
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  outline: none;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.25s ease;
+}
+
+.om-stores-search-input:focus {
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 0 4px rgba(200, 155, 92, 0.12);
+}
+
+.om-search-clear {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+}
+
+/* Floor Filter Pills */
+.om-floor-filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.om-floor-pill {
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.om-floor-pill:hover {
+  border-color: var(--accent-gold);
+  color: var(--text-primary);
+}
+
+.om-floor-pill.active {
+  background: var(--accent-gold);
+  color: #FFFFFF;
+  border-color: var(--accent-gold);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Category Filter Strip */
+.om-category-filter-strip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-top: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+
+.om-cat-strip-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.om-cat-strip-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 2px;
+}
+
+.om-cat-strip-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.om-cat-chip {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  background: transparent;
+  border: 1px solid var(--border-medium);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.om-cat-chip:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.om-cat-chip.active {
+  background: var(--bg-dark);
+  color: #FFFFFF;
+  border-color: var(--bg-dark);
+}
+
+/* Results Meta */
+.om-stores-results-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.om-clear-filters-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent-coral);
+}
+
+/* Stores Grid */
+.om-stores-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 600px) {
+  .om-stores-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .om-stores-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.om-store-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.om-store-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent-gold);
+}
+
+.om-store-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.om-store-floor-pill {
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: var(--accent-gold-light);
+  color: var(--accent-gold-hover);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.om-store-cat-pill {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.om-store-card-brand-box {
+  height: 82px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  background: #0E1714;
+  border-radius: var(--radius-md);
+  padding: 12px 18px;
+  overflow: hidden;
+}
+
+.om-store-logo-wrap {
+  height: 52px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.om-store-logo-wrap svg {
+  max-height: 100%;
+  max-width: 100%;
+}
+
+.om-store-brand-text-logo {
+  font-family: var(--font-sans);
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #FFFFFF;
+  text-align: center;
+}
+
+.om-store-card-content {
+  flex: 1;
+  margin-bottom: 18px;
+}
+
+.om-store-card-name {
+  font-family: var(--font-sans);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.om-store-card-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.om-store-ambassador-tag {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent-gold-hover);
+}
+
+.om-store-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-light);
+}
+
+.om-store-view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.om-store-map-pin {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  background: var(--bg-secondary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.om-store-map-pin:hover {
+  background: var(--bg-dark);
+  color: #FFFFFF;
+}
+
+/* Empty State */
+.om-stores-empty {
+  text-align: center;
+  padding: 80px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.om-empty-icon {
+  color: var(--accent-gold);
+}
+
+.om-stores-empty h3 {
+  font-size: 1.6rem;
+  margin: 0;
+}
+
+.om-stores-empty p {
+  color: var(--text-secondary);
+  max-width: 440px;
+  margin: 0;
+}
+
+/* ==========================================================================
+   3D CONSTELLATION STYLES
+   ========================================================================== */
+.om-stores-3d-wrapper {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 180px);
+  min-height: 600px;
+  background: #0D1612;
+}
+
+.om-3d-hint-bar {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
+  background: rgba(13, 22, 18, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #FFFFFF;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.om-3d-canvas-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* ==========================================================================
+   MODAL DIALOG STYLES
+   ========================================================================== */
+.om-store-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(13, 22, 18, 0.7);
+  backdrop-filter: blur(10px);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.om-store-modal-card {
+  width: 100%;
+  max-width: 580px;
+  background: #FFFFFF;
+  border-radius: var(--radius-xl);
+  padding: clamp(28px, 4vw, 40px);
+  position: relative;
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--border-light);
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.om-modal-close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.om-modal-close-btn:hover {
+  background: var(--bg-dark);
+  color: #FFFFFF;
+}
+
+.om-modal-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.om-modal-floor-badge {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  background: var(--accent-gold-light);
+  color: var(--accent-gold-hover);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.om-modal-cat-badge {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.om-modal-title {
+  font-size: clamp(2rem, 3.5vw, 2.6rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.om-modal-desc {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+.om-modal-showcase-box {
+  padding: 18px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  margin-bottom: 24px;
+}
+
+.om-modal-tagline {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--accent-gold-hover);
+  margin-bottom: 6px;
+}
+
+.om-modal-story {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.om-modal-ambassador-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--accent-gold-hover);
+}
+
+.om-modal-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 18px 0;
+  border-top: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 24px;
+}
+
+.om-meta-cell {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.om-meta-icon {
+  color: var(--accent-gold);
+  margin-top: 3px;
+}
+
+.om-meta-cell strong {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+.om-meta-cell span {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.om-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.om-modal-btn {
+  flex: 1;
+}

@@ -1,0 +1,322 @@
+/* ==========================================================================
+   ORION MALL GORAKHPUR — PREMIUM DESIGN SYSTEM
+   Modern, colourful, luxurious, editorial aesthetic inspired by high craft.
+   ========================================================================== */
+
+:root {
+  /* Typography */
+  --font-serif: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Backgrounds */
+  --bg-primary: #FAF9F5;
+  --bg-secondary: #F3EFE6;
+  --bg-card: #FFFFFF;
+  --bg-dark: #0D1612;
+  --bg-dark-card: #15221D;
+  --bg-dark-elevated: #1C2D26;
+
+  /* Text colors */
+  --text-primary: #151A18;
+  --text-secondary: #505C57;
+  --text-muted: #7C8B85;
+  --text-dark-primary: #FAF9F5;
+  --text-dark-secondary: #A3B5AE;
+
+  /* Accents */
+  --accent-gold: #C89B5C;
+  --accent-gold-hover: #B48545;
+  --accent-gold-light: #F7EFE4;
+  --accent-gold-glow: rgba(200, 155, 92, 0.25);
+
+  --accent-emerald: #0D8B62;
+  --accent-emerald-light: #E7F7F0;
+  --accent-coral: #E07052;
+  --accent-coral-light: #FCEEEA;
+  --accent-blue: #2563EB;
+  --accent-blue-light: #EFF6FF;
+  --accent-purple: #8B5CF6;
+  --accent-purple-light: #F5F3FF;
+
+  /* Borders */
+  --border-light: rgba(21, 26, 24, 0.08);
+  --border-medium: rgba(21, 26, 24, 0.14);
+  --border-gold: rgba(200, 155, 92, 0.32);
+  --border-dark: rgba(255, 255, 255, 0.10);
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(13, 22, 18, 0.04);
+  --shadow-md: 0 8px 24px -4px rgba(13, 22, 18, 0.08);
+  --shadow-lg: 0 20px 48px -12px rgba(13, 22, 18, 0.12);
+  --shadow-xl: 0 32px 64px -16px rgba(13, 22, 18, 0.18);
+  --shadow-gold: 0 12px 32px -6px rgba(200, 155, 92, 0.28);
+  --shadow-dark: 0 24px 50px rgba(0, 0, 0, 0.5);
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 0.18s ease;
+  --transition-normal: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Global Reset & Base */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-sans);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  scroll-behavior: smooth;
+  scroll-padding-top: 90px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+::selection {
+  background: var(--accent-gold);
+  color: #FFFFFF;
+}
+
+/* Typography Utility */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+  color: var(--text-primary);
+  font-weight: 500;
+  line-height: 1.15;
+  margin: 0;
+}
+
+h1 em, h2 em, h3 em {
+  font-style: italic;
+  font-family: var(--font-serif);
+  color: var(--accent-gold);
+  font-weight: 400;
+}
+
+p {
+  margin: 0 0 1rem;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+}
+
+/* Container */
+.om-container {
+  width: 100%;
+  max-width: 1360px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: clamp(16px, 4vw, 40px);
+  padding-right: clamp(16px, 4vw, 40px);
+}
+
+.om-container-wide {
+  width: 100%;
+  max-width: 1520px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: clamp(16px, 4vw, 48px);
+  padding-right: clamp(16px, 4vw, 48px);
+}
+
+/* Section Header Utilities */
+.om-section-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  background: var(--accent-gold-light);
+  color: var(--accent-gold-hover);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(200, 155, 92, 0.22);
+}
+
+.om-section-badge.dark {
+  background: rgba(200, 155, 92, 0.12);
+  color: var(--accent-gold);
+  border-color: rgba(200, 155, 92, 0.28);
+}
+
+.om-section-badge.emerald {
+  background: var(--accent-emerald-light);
+  color: var(--accent-emerald);
+  border-color: rgba(13, 139, 98, 0.2);
+}
+
+.om-section-title {
+  font-size: clamp(2.2rem, 4.2vw, 3.8rem);
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+  margin-bottom: 1rem;
+}
+
+.om-section-subtitle {
+  font-size: clamp(1rem, 1.2vw, 1.15rem);
+  color: var(--text-secondary);
+  max-width: 620px;
+  line-height: 1.7;
+}
+
+/* Buttons */
+.om-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 13px 26px;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: all var(--transition-normal);
+  white-space: nowrap;
+}
+
+.om-btn-gold {
+  background: linear-gradient(135deg, #D4AF37 0%, #C89B5C 50%, #B38642 100%);
+  color: #FFFFFF;
+  box-shadow: var(--shadow-gold);
+}
+
+.om-btn-gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px -6px rgba(200, 155, 92, 0.4);
+}
+
+.om-btn-dark {
+  background: var(--bg-dark);
+  color: #FFFFFF;
+  box-shadow: var(--shadow-md);
+}
+
+.om-btn-dark:hover {
+  background: #182821;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.om-btn-outline {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-medium);
+}
+
+.om-btn-outline:hover {
+  background: var(--bg-card);
+  border-color: var(--accent-gold);
+  color: var(--accent-gold-hover);
+  transform: translateY(-2px);
+}
+
+.om-btn-outline-white {
+  background: rgba(255, 255, 255, 0.06);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+}
+
+.om-btn-outline-white:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #FFFFFF;
+  transform: translateY(-2px);
+}
+
+.om-btn-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-medium);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  transition: all var(--transition-normal);
+}
+
+.om-btn-icon:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  transform: scale(1.05);
+}
+
+/* Glassmorphism Cards */
+.om-glass-card {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-lg);
+}
+
+.om-glass-card-dark {
+  background: rgba(21, 34, 29, 0.85);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: var(--shadow-dark);
+  border-radius: var(--radius-lg);
+  color: #FFFFFF;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 4s ease-in-out infinite;
+}
+
+/* Media helper */
+img, video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+

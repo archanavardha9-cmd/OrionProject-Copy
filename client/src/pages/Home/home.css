@@ -1,0 +1,622 @@
+/* =============================================================================
+   HOME.CSS — Orion Mall Gorakhpur
+   Cinematic scroll-driven homepage.
+   The video is ALWAYS visible. Sections use semi-transparent dark backdrops.
+   ============================================================================= */
+
+/* ─── RESET / BASE ──────────────────────────────────────────────────────────── */
+.om-home {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: transparent;
+}
+
+/* ─── 1. CONTINUOUS FIXED VIDEO BACKGROUND ──────────────────────────────────── */
+.om-video-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: #060a08;   /* fallback while video loads */
+}
+
+.om-video-el {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  /* Slight scale prevents hairline edges on some GPUs */
+  transform: scale(1.015);
+  will-change: transform;
+}
+
+/* Subtle vignette only — no colour overlay that blocks the video */
+.om-video-vignette {
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 180px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+/* ─── 2. CINEMATIC HUD ──────────────────────────────────────────────────────── */
+.om-hud {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 90;
+}
+
+.om-hud-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(10, 14, 11, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.om-hud-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  transition: background 0.2s;
+}
+.om-hud-dot.active {
+  background: #c8974e;
+  box-shadow: 0 0 0 3px rgba(200, 151, 78, 0.35);
+  animation: hudPulse 0.9s infinite alternate;
+}
+@keyframes hudPulse {
+  from { transform: scale(0.9); }
+  to   { transform: scale(1.3); }
+}
+
+.om-hud-label {
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+.om-hud-bar {
+  width: 44px;
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+}
+.om-hud-fill {
+  height: 100%;
+  background: #c8974e;
+  border-radius: 2px;
+  transition: width 0.3s linear;
+}
+
+.om-hud-btn {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  transition: background 0.2s, transform 0.15s;
+}
+.om-hud-btn:hover {
+  background: #c8974e;
+  transform: scale(1.1);
+}
+
+@media (max-width: 600px) {
+  .om-hud-pill { gap: 8px; padding: 6px 10px; }
+  .om-hud-bar { display: none; }
+}
+
+/* ─── 3. CONTENT WRAPPER — above the fixed video ───────────────────────────── */
+.om-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── 4. HERO SECTION ───────────────────────────────────────────────────────── */
+.om-hero {
+  position: relative;
+  min-height: calc(100svh - 72px);
+  display: flex;
+  align-items: flex-end;
+  /* NO background here — video shows through completely */
+}
+
+/* Gradient at bottom so text stays readable */
+.om-hero-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(5, 8, 6, 0.85) 0%,
+    rgba(5, 8, 6, 0.4) 40%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.om-hero-inner {
+  position: relative;
+  padding: 0 clamp(20px, 6vw, 80px) clamp(60px, 8vw, 100px);
+  max-width: 900px;
+}
+
+.om-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #c8974e;
+  margin-bottom: 20px;
+}
+
+.om-hero-h1 {
+  font-size: clamp(3.2rem, 8vw, 7rem);
+  font-weight: 400;
+  line-height: 1.0;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  margin: 0 0 20px;
+}
+.om-hero-h1 em {
+  font-style: italic;
+  color: #c8974e;
+}
+
+.om-hero-sub {
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.6;
+  max-width: 520px;
+  margin-bottom: 36px;
+}
+
+.om-hero-ctas {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+/* Scroll hint */
+.om-scroll-hint {
+  position: absolute;
+  bottom: 32px;
+  right: clamp(20px, 5vw, 60px);
+  color: rgba(255, 255, 255, 0.5);
+  animation: scrollBounce 2s ease-in-out infinite;
+}
+@keyframes scrollBounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(8px); }
+}
+
+/* ─── 5. GLOBAL SECTION PATTERNS ───────────────────────────────────────────── */
+.om-section {
+  position: relative;
+  padding: clamp(70px, 9vw, 110px) 0;
+}
+
+/* Semi-transparent dark backdrop — video always bleeds through */
+.om-section-bg {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 10, 7, 0.68);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  pointer-events: none;
+}
+.om-section-bg.dark {
+  background: rgba(4, 7, 5, 0.78);
+}
+
+.om-container {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 60px);
+}
+
+.om-section-header {
+  margin-bottom: 48px;
+}
+.om-section-header.centered {
+  text-align: center;
+}
+
+.om-section-h2 {
+  font-size: clamp(2rem, 4.5vw, 3.4rem);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin: 8px 0 12px;
+}
+.om-section-h2 em {
+  font-style: italic;
+  color: #c8974e;
+}
+
+.om-section-sub {
+  font-size: clamp(0.95rem, 1.3vw, 1.1rem);
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.6;
+  max-width: 540px;
+}
+.centered .om-section-sub {
+  margin: 0 auto;
+}
+
+/* ─── 6. BUTTONS ────────────────────────────────────────────────────────────── */
+.om-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 26px;
+  background: #c8974e;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  transition: background 0.2s, transform 0.15s;
+}
+.om-btn-primary:hover {
+  background: #b87e38;
+  transform: translateY(-2px);
+}
+
+.om-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: border-color 0.2s, transform 0.15s;
+}
+.om-btn-ghost:hover {
+  border-color: #c8974e;
+  color: #c8974e;
+  transform: translateY(-2px);
+}
+
+.om-link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #c8974e;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  margin-top: 24px;
+  transition: gap 0.2s;
+}
+.om-link-arrow:hover {
+  gap: 14px;
+}
+
+.om-ctas-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+
+/* ─── 7. BRAND CAROUSEL ─────────────────────────────────────────────────────── */
+.om-brands-section {
+  overflow: hidden;
+}
+
+.om-brand-carousel {
+  display: flex;
+  gap: 0;
+  overflow-x: scroll;
+  scroll-behavior: auto;
+  cursor: grab;
+  user-select: none;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin-top: 16px;
+  padding: 0 clamp(20px, 5vw, 60px) 20px;
+}
+.om-brand-carousel::-webkit-scrollbar { display: none; }
+.om-brand-carousel:active { cursor: grabbing; }
+
+.om-brand-item {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 28px 32px;
+  min-width: 180px;
+  transition: transform 0.25s ease;
+}
+.om-brand-item:hover {
+  transform: translateY(-6px);
+}
+
+.om-brand-logo-wrap {
+  width: 110px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: brightness(0) invert(1);
+  opacity: 0.75;
+  transition: opacity 0.25s, filter 0.25s;
+}
+.om-brand-item:hover .om-brand-logo-wrap {
+  opacity: 1;
+  filter: brightness(0) invert(1) sepia(1) saturate(2) hue-rotate(8deg);
+}
+.om-brand-logo-wrap svg,
+.om-brand-logo-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.om-brand-fallback {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.om-brand-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.om-brand-tagline {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.35);
+  text-align: center;
+  max-width: 140px;
+  line-height: 1.4;
+}
+
+/* ─── 8. TWO-COLUMN LAYOUT (Dining, Cinema, Visit) ──────────────────────────── */
+.om-two-col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(40px, 6vw, 80px);
+  align-items: center;
+}
+@media (min-width: 900px) {
+  .om-two-col {
+    grid-template-columns: 1fr 1fr;
+  }
+  .om-two-col.reverse .om-col-text { order: 2; }
+  .om-two-col.reverse .om-col-visual { order: 1; }
+}
+
+.om-col-text {
+  display: flex;
+  flex-direction: column;
+}
+.om-col-text .om-eyebrow { margin-bottom: 16px; }
+
+.om-col-visual {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  aspect-ratio: 4/3;
+  background: rgba(255, 255, 255, 0.04);
+}
+.om-visual-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.6s ease;
+}
+.om-col-visual:hover .om-visual-img {
+  transform: scale(1.04);
+}
+
+.om-visual-pill {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  background: rgba(10, 14, 11, 0.82);
+  backdrop-filter: blur(10px);
+  color: #c8974e;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(200, 151, 78, 0.3);
+}
+
+/* ─── 9. CINEMA SECTION ─────────────────────────────────────────────────────── */
+.om-movie-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 20px 0 16px;
+}
+
+.om-tab {
+  padding: 7px 18px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.2s;
+}
+.om-tab.active,
+.om-tab:hover {
+  background: #c8974e;
+  color: #fff;
+  border-color: #c8974e;
+}
+
+.om-movies-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.om-movie-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.om-movie-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.om-movie-genre {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ─── 10. FLOOR GUIDE ───────────────────────────────────────────────────────── */
+.om-floors-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 36px;
+}
+
+.om-floor-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 20px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.8rem;
+  transition: all 0.2s;
+  min-width: 100px;
+}
+.om-floor-btn:hover,
+.om-floor-btn.active {
+  background: rgba(200, 151, 78, 0.12);
+  border-color: #c8974e;
+  color: #c8974e;
+}
+
+.om-floor-num {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.om-floor-name {
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.om-floor-detail {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 32px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+}
+
+.om-floor-detail-name {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.om-floor-detail-desc {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.6;
+}
+
+.om-floor-detail .om-link-arrow {
+  justify-content: center;
+}
+
+/* ─── 11. VISIT FACTS ───────────────────────────────────────────────────────── */
+.om-visit-facts {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.om-fact {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.om-fact svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #c8974e;
+}
+
+.om-fact strong {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 2px;
+}
+
+.om-fact span {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ─── RESPONSIVE TWEAKS ─────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .om-hero-h1 { font-size: clamp(2.8rem, 11vw, 4rem); }
+  .om-brand-item { min-width: 140px; padding: 20px 20px; }
+  .om-brand-logo-wrap { width: 80px; height: 44px; }
+  .om-floor-btn { min-width: 80px; padding: 10px 12px; }
+}

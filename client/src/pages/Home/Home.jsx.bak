@@ -1,0 +1,985 @@
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { Link } from 'react-router-dom'
+import {
+  Compass,
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  ArrowRight,
+  ArrowUpRight,
+  Sparkles,
+  Film,
+  Utensils,
+  ShoppingBag,
+  MapPin,
+  Clock,
+  Car,
+  ShieldCheck,
+  ChevronRight,
+  ChevronDown,
+  Tv,
+  Gamepad2,
+  Layers,
+  Eye,
+  Activity,
+} from 'lucide-react'
+import PageTransition from '../../components/layout/PageTransition'
+import { showcaseBrands } from '../../data/showcaseBrands'
+import { BrandLogos } from '../../data/brandLogos'
+import { movies } from '../../data/movies'
+import { floors, floorLabel } from '../../data/floors'
+import './Home.css'
+
+export default function HomePage() {
+  /* =========================================================
+     1. PERSISTENT CONTINUOUS VIDEO & SCROLL-PLAY CONTROLLER
+     ========================================================= */
+  const videoRef = useRef(null)
+  const [isVideoActive, setIsVideoActive] = useState(false)
+  const [isScrolling, setIsScrolling] = useState(false)
+  const [isMuted, setIsMuted] = useState(true)
+  const [videoProgress, setVideoProgress] = useState(0)
+  const scrollTimeoutRef = useRef(null)
+  const playPromiseRef = useRef(null)
+
+  // Brand category tab filter
+  const [activeBrandCategory, setActiveBrandCategory] = useState('All')
+
+  // Cinema tab filter
+  const [activeMovieStatus, setActiveMovieStatus] = useState('Now Showing')
+
+  // Interactive Floor Teaser
+  const [activeFloorIndex, setActiveFloorIndex] = useState(0)
+
+  // Scroll Activity Handler:
+  // Starts video immediately when scrolling starts,
+  // Pauses video immediately when scrolling stops.
+  const handleScrollActivity = useCallback(() => {
+    const video = videoRef.current
+    if (!video) return
+
+    setIsScrolling(true)
+
+    // Clear previous pause timer
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current)
+    }
+
+    // If currently paused, resume immediately from the exact current frame
+    if (video.paused) {
+      const p = video.play()
+      if (p !== undefined) {
+        p.then(() => setIsVideoActive(true)).catch(() => {})
+      }
+    }
+
+    // Snappy pause trigger: ~100ms after scrolling stops, pause immediately
+    scrollTimeoutRef.current = setTimeout(() => {
+      setIsScrolling(false)
+      if (video && !video.paused) {
+        video.pause()
+        setIsVideoActive(false)
+      }
+    }, 100)
+  }, [])
+
+  // Listen to wheel, touch, and scroll events across window
+  useEffect(() => {
+    const onScroll = () => handleScrollActivity()
+    const onWheel = () => handleScrollActivity()
+    const onTouchMove = () => handleScrollActivity()
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('wheel', onWheel, { passive: true })
+    window.addEventListener('touchmove', onTouchMove, { passive: true })
+
+    const handleVisibilityChange = () => {
+      if (document.hidden && videoRef.current && !videoRef.current.paused) {
+        videoRef.current.pause()
+        setIsVideoActive(false)
+        setIsScrolling(false)
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('wheel', onWheel)
+      window.removeEventListener('touchmove', onTouchMove)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current)
+    }
+  }, [handleScrollActivity])
+
+  // Track video progress for HUD indicator
+  const onTimeUpdate = () => {
+    if (videoRef.current && videoRef.current.duration) {
+      setVideoProgress((videoRef.current.currentTime / videoRef.current.duration) * 100)
+    }
+  }
+
+  // Toggle Mute
+  const toggleMute = () => {
+    if (!videoRef.current) return
+    videoRef.current.muted = !isMuted
+    setIsMuted(!isMuted)
+  }
+
+  // Manual Play/Pause override toggle
+  const toggleManualPlay = () => {
+    if (!videoRef.current) return
+    if (videoRef.current.paused) {
+      videoRef.current.play().then(() => setIsVideoActive(true)).catch(() => {})
+    } else {
+      videoRef.current.pause()
+      setIsVideoActive(false)
+    }
+  }
+
+  // Filtered showcase brands
+  const brandCategories = ['All', 'Fashion & Denim', 'Athletic & Footwear', "Men's Sartorial", "Women's Ethnic"]
+  const filteredBrands = showcaseBrands.filter((brand) => {
+    if (activeBrandCategory === 'All') return true
+    if (activeBrandCategory === 'Fashion & Denim') {
+      return brand.category.includes('Fashion') || brand.category.includes('Denim') || brand.category.includes('Casual')
+    }
+    if (activeBrandCategory === 'Athletic & Footwear') {
+      return brand.category.includes('Footwear') || brand.category.includes('Sneakers') || brand.category.includes('Athletic')
+    }
+    if (activeBrandCategory === "Men's Sartorial") {
+      return brand.category.includes('Men') || brand.category.includes('Executive') || brand.category.includes('Smart Casuals')
+    }
+    if (activeBrandCategory === "Women's Ethnic") {
+      return brand.category.includes('Ethnic') || brand.category.includes('Women')
+    }
+    return true
+  })
+
+  // Filtered movies
+  const filteredMovies = movies.filter((m) => m.status === activeMovieStatus)
+  const currentFloor = floors[activeFloorIndex] || floors[0]
+
+  return (
+    <PageTransition>
+      <div className="om-home-page">
+        {/* =========================================================
+            PERSISTENT CONTINUOUS VIDEO LAYER (ACROSS ALL SECTIONS)
+            One single <video> element pinned behind the entire homepage.
+            Never restarts, never resets to zero, never disappears.
+           ========================================================= */}
+        <div className="om-persistent-video-backdrop" aria-hidden="true">
+          <video
+            ref={videoRef}
+            className="om-persistent-video"
+            src="/videos/home.mp4"
+            loop
+            muted={isMuted}
+            playsInline
+            preload="auto"
+            onTimeUpdate={onTimeUpdate}
+          />
+          {/* Layered cinematic lighting & grain overlays */}
+          <div className="om-video-scrim-ambient" />
+          <div className="om-video-vignette-global" />
+        </div>
+
+        {/* =========================================================
+            FLOATING CINEMATIC CONTROLLER HUD
+            Indicates live scroll playback status & provides sound toggle
+           ========================================================= */}
+        <aside className="om-cinematic-hud" aria-label="Cinematic video controls">
+          <div className="om-hud-pill">
+            <div className="om-hud-live-tag">
+              <span className={`om-hud-dot ${isScrolling ? 'pulse' : ''}`} />
+              <span className="om-hud-status">
+                {isScrolling ? 'Cinematic Playing' : 'Scroll to Play'}
+              </span>
+            </div>
+
+            <div className="om-hud-progress-bar">
+              <div
+                className="om-hud-progress-fill"
+                style={{ width: `${videoProgress.toFixed(1)}%` }}
+              />
+            </div>
+
+            <div className="om-hud-buttons">
+              <button
+                type="button"
+                onClick={toggleManualPlay}
+                className="om-hud-icon-btn"
+                aria-label={isVideoActive ? 'Pause video' : 'Play video'}
+                title={isVideoActive ? 'Pause video' : 'Play video'}
+              >
+                {isVideoActive ? <Pause size={14} /> : <Play size={14} />}
+              </button>
+
+              <button
+                type="button"
+                onClick={toggleMute}
+                className="om-hud-icon-btn"
+                aria-label={isMuted ? 'Unmute video audio' : 'Mute video audio'}
+                title={isMuted ? 'Unmute video audio' : 'Mute video audio'}
+              >
+                {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        {/* =========================================================
+            HOMEPAGE CONTENT SECTIONS (LAYERED ABOVE CONTINUOUS VIDEO)
+           ========================================================= */}
+        <div className="om-home-sections-flow">
+          {/* =======================================================
+              1. HERO SECTION
+             ======================================================= */}
+          <section className="om-hero-stage" aria-label="Welcome to Orion Mall Gorakhpur">
+            <div className="om-container om-hero-container">
+              <div className="om-hero-glass-hero">
+                <span className="om-section-badge">
+                  <Sparkles size={13} />
+                  <span>EASTERN U.P.’S PREMIER LANDMARK · MOHADDIPUR</span>
+                </span>
+
+                <h1 className="om-hero-title">
+                  Where Architectural Splendour Meets <em>Everyday Wonder</em>
+                </h1>
+
+                <p className="om-hero-lead">
+                  Welcome to Orion Mall Gorakhpur. Immerse yourself across six curated levels of world-class retail, rooftop gastronomy, and India’s premier Dolby Atmos 4K laser cinema.
+                </p>
+
+                <div className="om-hero-actions">
+                  <Link to="/stores" className="om-btn om-btn-gold">
+                    <span>Explore 40+ Stores</span>
+                    <ArrowRight size={16} />
+                  </Link>
+                  <Link to="/explore" className="om-btn om-btn-dark">
+                    <Compass size={16} />
+                    <span>Interactive 3D Walkthrough</span>
+                  </Link>
+                  <Link to="/visit" className="om-btn om-btn-outline">
+                    <span>Plan Your Visit</span>
+                  </Link>
+                </div>
+
+                {/* Cinematic Scroll Prompt */}
+                <div className="om-hero-scroll-invite">
+                  <span className="om-scroll-invite-text">
+                    Scroll down to journey through the mall · video plays as you scroll
+                  </span>
+                  <div className="om-scroll-indicator-mouse">
+                    <div className="om-mouse-wheel-dot" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating Metric Badges */}
+              <div className="om-hero-stats-ribbon">
+                <div className="om-stat-pill-card">
+                  <div className="om-stat-num">40+</div>
+                  <div className="om-stat-label">Approved Brands</div>
+                  <p className="om-stat-sub">Levi's, Skechers, Crocs, Allen Solly...</p>
+                </div>
+
+                <div className="om-stat-pill-card">
+                  <div className="om-stat-num">6</div>
+                  <div className="om-stat-label">Curated Levels</div>
+                  <p className="om-stat-sub">Ground Floor to Rooftop Dining</p>
+                </div>
+
+                <div className="om-stat-pill-card">
+                  <div className="om-stat-num">5-Screen</div>
+                  <div className="om-stat-label">PVR INOX Multiplex</div>
+                  <p className="om-stat-sub">Dolby Atmos 7.1 & 4K Laser</p>
+                </div>
+
+                <div className="om-stat-pill-card">
+                  <div className="om-stat-num">10 AM–10:30 PM</div>
+                  <div className="om-stat-label">Open Daily 365 Days</div>
+                  <p className="om-stat-sub">Mohaddipur Main Road, Gorakhpur</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* =======================================================
+              2. INFINITE LOGO MARQUEE (APPROVED BRANDS ONLY)
+             ======================================================= */}
+          <section className="om-marquee-strip" aria-label="Approved Brands Marquee">
+            <div className="om-marquee-tag">
+              <span>FEATURED WORLD-CLASS PARTNERS AT ORION MALL</span>
+            </div>
+            <div className="om-marquee-window">
+              <div className="om-marquee-content">
+                {[...showcaseBrands, ...showcaseBrands].map((brand, idx) => {
+                  const LogoComponent = BrandLogos[brand.logoKey]
+                  return (
+                    <Link
+                      key={`${brand.id}-${idx}`}
+                      to={`/stores?slug=${brand.slug}`}
+                      className="om-marquee-badge"
+                      title={`${brand.name} at Orion Mall Gorakhpur`}
+                    >
+                      {LogoComponent ? (
+                        <div className="om-marquee-svg">
+                          <LogoComponent />
+                        </div>
+                      ) : (
+                        <span className="om-marquee-name">{brand.name}</span>
+                      )}
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          </section>
+
+          {/* =======================================================
+              3. ARCHITECTURAL HORIZON (REAL ORION PHOTOS & NARRATIVE)
+             ======================================================= */}
+          <section className="om-section-panel om-arch-panel" aria-label="Orion Mall Architecture">
+            <div className="om-container">
+              <div className="om-arch-layout">
+                {/* Media Column with Real Photos */}
+                <div className="om-arch-imagery">
+                  <div className="om-arch-card-primary">
+                    <img
+                      src="/images/orion/orion-atrium-real.webp"
+                      alt="Soaring glass skylights and Italian terrazzo galleria at Orion Mall"
+                      className="om-arch-photo"
+                      loading="lazy"
+                    />
+                    <div className="om-arch-photo-overlay">
+                      <span className="om-arch-spark">✦</span>
+                      <div>
+                        <strong>Italian Terrazzo Walkways</strong>
+                        <span>30-Foot Glass Skylights Channelling Natural Sunlight</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="om-arch-card-secondary">
+                    <img
+                      src="/images/orion/orion-facade-real.webp"
+                      alt="Modern glass and terracotta facade of Orion Mall in Mohaddipur"
+                      className="om-arch-photo"
+                      loading="lazy"
+                    />
+                    <div className="om-arch-sec-overlay">
+                      <span>Mohaddipur Facade</span>
+                      <strong>Architectural Landmark</strong>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Narrative Column */}
+                <div className="om-arch-narrative">
+                  <span className="om-section-badge emerald">
+                    <ShieldCheck size={13} />
+                    <span>LANDMARK ARCHITECTURE</span>
+                  </span>
+
+                  <h2 className="om-section-title">
+                    Sculpted in Light, <em>Engineered for Joy</em>
+                  </h2>
+
+                  <p className="om-section-lead">
+                    Orion Mall redefines urban leisure in Eastern Uttar Pradesh. Its signature crystalline atrium channels cascading natural sunlight onto polished terrazzo gallerias, creating an airy, uplifting atmosphere across every level.
+                  </p>
+
+                  <div className="om-arch-perks-stack">
+                    <div className="om-perk-row">
+                      <div className="om-perk-icon-sq">
+                        <Layers size={20} />
+                      </div>
+                      <div>
+                        <h4>Six Experiential Tiers</h4>
+                        <p>Seamlessly interconnected by panoramic glass elevators and sweeping escalators for effortless circulation.</p>
+                      </div>
+                    </div>
+
+                    <div className="om-perk-row">
+                      <div className="om-perk-icon-sq">
+                        <ShoppingBag size={20} />
+                      </div>
+                      <div>
+                        <h4>Curated Retail Promenades</h4>
+                        <p>Dedicated zones for global denim, high fashion, athletic footwear, and Indian artisanal ethnic wear.</p>
+                      </div>
+                    </div>
+
+                    <div className="om-perk-row">
+                      <div className="om-perk-icon-sq">
+                        <Utensils size={20} />
+                      </div>
+                      <div>
+                        <h4>Sky-Lit Gastronomy Hub</h4>
+                        <p>Spacious third-floor food court and terrace dining bringing global and regional flavours together.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="om-section-ctas">
+                    <Link to="/explore" className="om-btn om-btn-dark">
+                      <Compass size={16} />
+                      <span>Tour Mall in 3D</span>
+                    </Link>
+                    <Link to="/visit" className="om-btn om-btn-outline">
+                      <span>Visitor Amenities</span>
+                      <ArrowRight size={15} />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* =======================================================
+              4. APPROVED BRANDS SHOWCASE (INTERACTIVE EDITORIAL)
+             ======================================================= */}
+          <section className="om-section-panel om-brands-panel" aria-label="Flagship Retail Collection">
+            <div className="om-container">
+              <div className="om-panel-header">
+                <div>
+                  <span className="om-section-badge">
+                    <Sparkles size={13} />
+                    <span>CURATED RETAIL DIRECTORY</span>
+                  </span>
+                  <h2 className="om-section-title">
+                    The Flagship <em>Brand Collection</em>
+                  </h2>
+                  <p className="om-section-subtitle">
+                    Explore verified, authentic flagship boutiques housed within Orion Mall. Every brand has been selected for uncompromising quality and contemporary style.
+                  </p>
+                </div>
+
+                {/* Filter tabs */}
+                <div className="om-filter-pill-group" role="tablist">
+                  {brandCategories.map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      role="tab"
+                      aria-selected={activeBrandCategory === cat}
+                      className={`om-filter-pill ${activeBrandCategory === cat ? 'active' : ''}`}
+                      onClick={() => setActiveBrandCategory(cat)}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Brands Grid */}
+              <div className="om-brands-cards-grid">
+                {filteredBrands.slice(0, 8).map((brand) => {
+                  const Logo = BrandLogos[brand.logoKey]
+                  return (
+                    <div key={brand.id} className="om-editorial-brand-card">
+                      <div className="om-brand-media-top" style={{ backgroundColor: brand.bgTone || '#101714' }}>
+                        <div className="om-brand-svg-box">
+                          {Logo ? <Logo /> : <span>{brand.name}</span>}
+                        </div>
+
+                        {brand.image && (
+                          <img
+                            src={brand.image}
+                            alt={`${brand.name} ambassador ${brand.celebrity}`}
+                            className="om-brand-ambassador-cutout"
+                            loading="lazy"
+                          />
+                        )}
+
+                        <span className="om-brand-level-badge">
+                          {brand.floorName}
+                        </span>
+                      </div>
+
+                      <div className="om-brand-card-details">
+                        <div className="om-brand-card-meta">
+                          <span className="om-brand-category-tag">{brand.category}</span>
+                          {brand.celebrity && (
+                            <span className="om-brand-celeb-tag">
+                              Ambassador: {brand.celebrity}
+                            </span>
+                          )}
+                        </div>
+
+                        <h3 className="om-brand-title-text">{brand.name}</h3>
+                        <p className="om-brand-quote">"{brand.tagline}"</p>
+                        <p className="om-brand-narrative">{brand.story}</p>
+
+                        <div className="om-brand-bottom-actions">
+                          <Link
+                            to={`/stores?slug=${brand.slug}`}
+                            className="om-brand-link-action"
+                          >
+                            <span>Store Details</span>
+                            <ArrowRight size={14} />
+                          </Link>
+                          <Link
+                            to={`/explore?store=${brand.slug}`}
+                            className="om-brand-pin-btn"
+                            title="Locate on 3D map"
+                          >
+                            <Compass size={14} />
+                            <span>3D Pin</span>
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <div className="om-panel-summary-bar">
+                <p>Showing curated flagship highlights from our complete directory of 40+ approved boutiques.</p>
+                <Link to="/stores" className="om-btn om-btn-dark">
+                  <span>View Complete Directory</span>
+                  <ArrowUpRight size={16} />
+                </Link>
+              </div>
+            </div>
+          </section>
+
+          {/* =======================================================
+              5. CINEMA & ENTERTAINMENT: PVR INOX 4K LASER
+             ======================================================= */}
+          <section className="om-section-panel om-cinema-panel" aria-label="PVR INOX Multiplex">
+            <div className="om-container">
+              <div className="om-panel-header dark">
+                <div>
+                  <span className="om-section-badge dark">
+                    <Film size={13} />
+                    <span>LEVEL 4 · PVR INOX MULTIPLEX</span>
+                  </span>
+                  <h2 className="om-section-title text-white">
+                    Cinematic Splendour in <em>Dolby Atmos & 4K Laser</em>
+                  </h2>
+                  <p className="om-section-subtitle text-slate-300">
+                    Experience movies as the filmmakers envisioned. State-of-the-art multi-screen laser projection, crystal-clear Dolby Atmos acoustics, and ultra-comfortable plush recliners.
+                  </p>
+                </div>
+
+                <div className="om-filter-pill-group">
+                  <button
+                    type="button"
+                    className={`om-filter-pill dark ${activeMovieStatus === 'Now Showing' ? 'active' : ''}`}
+                    onClick={() => setActiveMovieStatus('Now Showing')}
+                  >
+                    <span className="om-live-dot" />
+                    <span>Now Showing</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`om-filter-pill dark ${activeMovieStatus === 'Upcoming' ? 'active' : ''}`}
+                    onClick={() => setActiveMovieStatus('Upcoming')}
+                  >
+                    <span>Upcoming Premieres</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Movies Grid */}
+              <div className="om-cinema-cards-grid">
+                {filteredMovies.map((movie) => (
+                  <div key={movie.id} className="om-cinema-movie-card">
+                    <div className="om-movie-poster-box">
+                      <img
+                        src={movie.poster}
+                        alt={`${movie.title} poster`}
+                        className="om-movie-poster-image"
+                        loading="lazy"
+                      />
+                      <div className="om-movie-censor-badge">{movie.rating}</div>
+                      <div className="om-movie-laser-badge">{movie.screen}</div>
+                    </div>
+
+                    <div className="om-movie-card-info">
+                      <div className="om-movie-meta-line">
+                        <span className="om-movie-genre-txt">{movie.genre}</span>
+                        <span className="om-movie-runtime-txt">{movie.duration}</span>
+                      </div>
+
+                      <h3 className="om-movie-headline">{movie.title}</h3>
+                      <p className="om-movie-language-txt">{movie.language}</p>
+                      <p className="om-movie-synopsis">{movie.description}</p>
+
+                      <div className="om-movie-showtimes-section">
+                        <div className="om-times-heading">
+                          {movie.status === 'Now Showing' ? 'Today’s Showtimes:' : 'Release Date:'}
+                        </div>
+                        <div className="om-times-pills-row">
+                          {movie.showtimes.map((time, idx) => (
+                            <span key={idx} className="om-time-pill-item">
+                              {time}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="om-movie-cta-wrap">
+                        <Link
+                          to="/entertainment"
+                          className="om-btn om-btn-gold om-movie-action-btn"
+                        >
+                          <Tv size={15} />
+                          <span>Experience at PVR INOX</span>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Gamezone Feature Strip */}
+              <div className="om-gamezone-strip-card">
+                <div className="om-gamezone-copy">
+                  <span className="om-section-badge dark">
+                    <Gamepad2 size={13} />
+                    <span>FAMILY ENTERTAINMENT</span>
+                  </span>
+                  <h3>The Orion Arcade & VR Arena</h3>
+                  <p>
+                    Immersive virtual reality simulators, ten-pin bowling, and retro-modern arcade gaming for thrill-seekers of every generation.
+                  </p>
+                  <Link to="/entertainment" className="om-btn om-btn-outline-white">
+                    <span>Explore Entertainment Zone</span>
+                    <ArrowRight size={15} />
+                  </Link>
+                </div>
+                <div className="om-gamezone-photo-frame">
+                  <img
+                    src="/images/orion/orion-gamezone.webp"
+                    alt="Orion Mall Gaming and Arcade Zone"
+                    className="om-gamezone-photo"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* =======================================================
+              6. GASTRONOMY PROMENADE (DINING & FOOD COURT)
+             ======================================================= */}
+          <section className="om-section-panel om-dining-panel" aria-label="Dining at Orion Mall">
+            <div className="om-container">
+              <div className="om-dining-split-layout">
+                {/* Dining Narrative */}
+                <div className="om-dining-details-col">
+                  <span className="om-section-badge">
+                    <Utensils size={13} />
+                    <span>LEVEL 3 · FOOD COURT & TERRACES</span>
+                  </span>
+
+                  <h2 className="om-section-title">
+                    Flavours That <em>Elevate Every Moment</em>
+                  </h2>
+
+                  <p className="om-section-lead">
+                    From world-famous burger hubs to handcrafted authentic Italian pizzas, piping hot crispy fried chicken, and artisanal barista brews — the Level 3 Food Court is Gorakhpur's favorite gathering table.
+                  </p>
+
+                  <div className="om-dining-outlets-stack">
+                    <div className="om-dining-outlet-item">
+                      <strong>KFC</strong>
+                      <span>Level 3 · Secret 11 Herbs & Spices</span>
+                    </div>
+                    <div className="om-dining-outlet-item">
+                      <strong>Burger King</strong>
+                      <span>Level 3 · Flame-Grilled Whoppers</span>
+                    </div>
+                    <div className="om-dining-outlet-item">
+                      <strong>Domino’s Pizza</strong>
+                      <span>Level 3 · Fresh Baked Crusts</span>
+                    </div>
+                  </div>
+
+                  <div className="om-dining-bullets-list">
+                    <div className="om-bullet-item">
+                      <span className="om-bullet-spark">✦</span>
+                      <div>
+                        <strong>Family Seating Promenade</strong>
+                        <span>Over 350 comfortable seats with panoramic atrium sightlines.</span>
+                      </div>
+                    </div>
+                    <div className="om-bullet-item">
+                      <span className="om-bullet-spark">✦</span>
+                      <div>
+                        <strong>Quick Takeaway & Dine-In</strong>
+                        <span>Rapid counter service and freshly prepared gourmet delights.</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="om-section-ctas">
+                    <Link to="/dining" className="om-btn om-btn-dark">
+                      <span>Explore Dining Menu</span>
+                      <ArrowRight size={15} />
+                    </Link>
+                    <Link to="/explore?store=kfc" className="om-btn om-btn-outline">
+                      <Compass size={16} />
+                      <span>Locate Food Court</span>
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Dining Visuals */}
+                <div className="om-dining-photos-col">
+                  <div className="om-dining-hero-card">
+                    <img
+                      src="/images/orion/orion-dining-asian1.webp"
+                      alt="Vibrant dining ambience at Orion Mall Gorakhpur"
+                      className="om-dining-hero-img"
+                      loading="lazy"
+                    />
+                    <div className="om-dining-time-pill">
+                      <span className="om-live-dot" />
+                      <span>Fresh Daily · 11:00 AM – 10:30 PM</span>
+                    </div>
+                  </div>
+
+                  <div className="om-dining-twin-cards">
+                    <div className="om-dining-mini-card">
+                      <img
+                        src="/images/orion/orion-dining-asian2.webp"
+                        alt="Artisanal cuisine at Orion Mall"
+                        className="om-mini-img"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="om-dining-mini-card">
+                      <img
+                        src="/images/orion/orion-dining-asian3.webp"
+                        alt="Cosy dining corners at Orion Mall"
+                        className="om-mini-img"
+                        loading="lazy"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* =======================================================
+              7. INTERACTIVE 3D FLOOR SELECTOR TEASER
+             ======================================================= */}
+          <section className="om-section-panel om-floor-panel" aria-label="Floor by Floor Navigation">
+            <div className="om-container">
+              <div className="om-panel-header centered">
+                <span className="om-section-badge">
+                  <Compass size={13} />
+                  <span>EXPERIENCE ALL SIX LEVELS</span>
+                </span>
+                <h2 className="om-section-title">
+                  Six Experiential Levels, <em>Infinite Discoveries</em>
+                </h2>
+                <p className="om-section-subtitle">
+                  Select any level below to see what awaits you, or step directly into our full-scale interactive 3D spatial walkthrough.
+                </p>
+              </div>
+
+              <div className="om-floor-interactive-hub">
+                {/* Level Tabs */}
+                <div className="om-floor-tab-buttons">
+                  {floors.map((floor, idx) => (
+                    <button
+                      key={floor.id}
+                      type="button"
+                      className={`om-floor-select-btn ${activeFloorIndex === idx ? 'active' : ''}`}
+                      onClick={() => setActiveFloorIndex(idx)}
+                    >
+                      <span className="om-btn-floor-tag">{floor.label}</span>
+                      <span className="om-btn-floor-name">{floor.name}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Level Details Card */}
+                <div className="om-floor-feature-card">
+                  <div className="om-floor-card-left">
+                    <span className="om-floor-kicker">LEVEL {currentFloor.number} DIRECTORY HIGHLIGHTS</span>
+                    <h3 className="om-floor-title-heading">{currentFloor.name}</h3>
+                    <p className="om-floor-summary-line">{currentFloor.wing} · {currentFloor.description}</p>
+
+                    <div className="om-floor-tenants-box">
+                      <strong>Signature Destinations on this Floor:</strong>
+                      <div className="om-tenants-pill-list">
+                        {currentFloor.number === 0 && (
+                          <>
+                            <span className="om-tenant-pill">Levi's Flagship</span>
+                            <span className="om-tenant-pill">Being Human</span>
+                            <span className="om-tenant-pill">Crocs</span>
+                            <span className="om-tenant-pill">Van Heusen</span>
+                            <span className="om-tenant-pill">Louis Philippe</span>
+                            <span className="om-tenant-pill">MAX Fashion</span>
+                            <span className="om-tenant-pill">Samsung Experience</span>
+                          </>
+                        )}
+                        {currentFloor.number === 1 && (
+                          <>
+                            <span className="om-tenant-pill">Allen Solly</span>
+                            <span className="om-tenant-pill">Peter England</span>
+                            <span className="om-tenant-pill">Skechers</span>
+                            <span className="om-tenant-pill">Reebok</span>
+                            <span className="om-tenant-pill">Pepe Jeans London</span>
+                            <span className="om-tenant-pill">Spykar</span>
+                            <span className="om-tenant-pill">Mufti</span>
+                          </>
+                        )}
+                        {currentFloor.number === 2 && (
+                          <>
+                            <span className="om-tenant-pill">W for Woman</span>
+                            <span className="om-tenant-pill">Soch Ethnic</span>
+                            <span className="om-tenant-pill">Aurelia</span>
+                            <span className="om-tenant-pill">Van Heusen Woman</span>
+                            <span className="om-tenant-pill">U.S. Polo Assn. Kids</span>
+                            <span className="om-tenant-pill">Lavie Handbags</span>
+                          </>
+                        )}
+                        {currentFloor.number === 3 && (
+                          <>
+                            <span className="om-tenant-pill">KFC Restaurant</span>
+                            <span className="om-tenant-pill">Burger King</span>
+                            <span className="om-tenant-pill">Domino’s Pizza</span>
+                            <span className="om-tenant-pill">Food Court Galleria</span>
+                            <span className="om-tenant-pill">Jawed Habib Salon</span>
+                          </>
+                        )}
+                        {currentFloor.number === 4 && (
+                          <>
+                            <span className="om-tenant-pill">PVR INOX 4K Laser Cinema</span>
+                            <span className="om-tenant-pill">Dolby Atmos Audi 1</span>
+                            <span className="om-tenant-pill">Gourmet Concessions</span>
+                            <span className="om-tenant-pill">Arcade & Game Zone</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="om-floor-card-ctas">
+                      <Link to="/explore" className="om-btn om-btn-gold">
+                        <Compass size={16} />
+                        <span>Explore {currentFloor.name} in 3D</span>
+                      </Link>
+                      <Link to="/stores" className="om-btn om-btn-outline">
+                        <span>Filter Directory by this Floor</span>
+                        <ArrowRight size={14} />
+                      </Link>
+                    </div>
+                  </div>
+
+                  <div className="om-floor-card-right">
+                    <div className="om-3d-scene-mockup">
+                      <div className="om-mockup-ring ring-outer" />
+                      <div className="om-mockup-ring ring-inner" />
+                      <div className="om-mockup-plinth">
+                        <span className="om-plinth-level-txt">{floorLabel(currentFloor.number)}</span>
+                        <span className="om-plinth-wing-txt">{currentFloor.name}</span>
+                      </div>
+                      <div className="om-mockup-status-tag">
+                        <span className="om-live-dot" />
+                        <span>Three.js Spatial Engine Active</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* =======================================================
+              8. PLAN YOUR VISIT / LOCATION CONCIERGE
+             ======================================================= */}
+          <section className="om-section-panel om-concierge-panel" aria-label="Plan Your Visit">
+            <div className="om-container">
+              <div className="om-concierge-card-box">
+                <div className="om-concierge-details">
+                  <span className="om-section-badge">
+                    <MapPin size={13} />
+                    <span>CONCIERGE & TRANSIT</span>
+                  </span>
+                  <h2 className="om-section-title">
+                    Everything You Need for a <em>Seamless Visit</em>
+                  </h2>
+                  <p className="om-section-lead">
+                    Centrally located in Mohaddipur near Radisson Blu, Orion Mall is effortlessly accessible from all quadrants of Gorakhpur with multi-level secure parking and dedicated concierge support.
+                  </p>
+
+                  <div className="om-concierge-grid-info">
+                    <div className="om-concierge-point">
+                      <Clock size={20} className="om-point-icon" />
+                      <div>
+                        <strong>Operating Hours</strong>
+                        <p>Open Daily: 10:00 AM – 10:30 PM (PVR INOX open until late night)</p>
+                      </div>
+                    </div>
+
+                    <div className="om-concierge-point">
+                      <Car size={20} className="om-point-icon" />
+                      <div>
+                        <strong>Multi-Level Parking</strong>
+                        <p>Dedicated covered bays, automated ticket entry, and valet parking.</p>
+                      </div>
+                    </div>
+
+                    <div className="om-concierge-point">
+                      <MapPin size={20} className="om-point-icon" />
+                      <div>
+                        <strong>Address & Landmark</strong>
+                        <p>Mohaddipur Main Road, Near Radisson Blu, Gorakhpur, UP 273008</p>
+                      </div>
+                    </div>
+
+                    <div className="om-concierge-point">
+                      <ShieldCheck size={20} className="om-point-icon" />
+                      <div>
+                        <strong>Visitor Amenities</strong>
+                        <p>Full wheelchair access, nursing rooms, high-speed Wi-Fi & ATMs.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="om-section-ctas">
+                    <a
+                      href="https://maps.google.com/?q=Orion+Mall+Mohaddipur+Gorakhpur"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="om-btn om-btn-dark"
+                    >
+                      <span>Open in Google Maps</span>
+                      <ArrowUpRight size={16} />
+                    </a>
+                    <Link to="/visit" className="om-btn om-btn-outline">
+                      <span>Comprehensive Visitor Guide</span>
+                      <ArrowRight size={15} />
+                    </Link>
+                  </div>
+                </div>
+
+                <div className="om-concierge-photo-col">
+                  <img
+                    src="/images/orion/orion-corridor-real.webp"
+                    alt="Interior galleria and guest walkways at Orion Mall Gorakhpur"
+                    className="om-concierge-galleria-img"
+                    loading="lazy"
+                  />
+                  <div className="om-concierge-quote-tag">
+                    <p>"Eastern Uttar Pradesh's landmark gathering place for shopping, cinema, and celebration."</p>
+                    <span>— Orion Mall Gorakhpur Concierge</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </PageTransition>
+  )
+}
+
