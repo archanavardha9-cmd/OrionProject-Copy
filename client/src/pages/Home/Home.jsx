@@ -8,6 +8,7 @@
  *  • Hero = full-viewport text overlay — no glass boxes.
  *  • Sections use semi-transparent dark backdrops so video stays visible.
  *  • Brands = drag/swipe horizontal carousel, logo-centric, no cards.
+ *  • REPEATABLE scroll-reveal: IntersectionObserver resets on exit.
  */
 
 import { useState, useRef, useEffect, useCallback } from 'react'
@@ -24,6 +25,37 @@ import { BrandLogos } from '../../data/brandLogos.jsx'
 import { movies } from '../../data/movies'
 import { floors, floorLabel } from '../../data/floors'
 import './Home.css'
+
+/* ─────────────────────────────────────────────────────────────────────────
+   useScrollReveal — REPEATABLE IntersectionObserver-based scroll animation.
+   Adds `data-revealed="true"` when in-view, removes it when out-of-view.
+   This means every scroll up/down re-triggers the animation.
+───────────────────────────────────────────────────────────────────────── */
+function useScrollReveal(threshold = 0.15) {
+  const ref = useRef(null)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.setAttribute('data-revealed', 'true')
+        } else {
+          // Remove on exit so animation replays next time it enters
+          el.removeAttribute('data-revealed')
+        }
+      },
+      { threshold, rootMargin: '0px 0px -60px 0px' }
+    )
+
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [threshold])
+
+  return ref
+}
 
 /* ─────────────────────────────────────────────────────────────────────────
    Brand Carousel — drag / swipe / touch, momentum-free, looping list
@@ -100,6 +132,13 @@ export default function HomePage() {
   const [activeMovieStatus, setActiveMovieStatus] = useState('Now Showing')
   const [activeFloorIndex, setActiveFloorIndex] = useState(0)
 
+  /* --- scroll-reveal refs (each section gets its own) ------------------- */
+  const refBrands   = useScrollReveal(0.12)
+  const refDining   = useScrollReveal(0.12)
+  const refCinema   = useScrollReveal(0.12)
+  const refFloors   = useScrollReveal(0.12)
+  const refVisit    = useScrollReveal(0.12)
+
   /* --- scroll-play controller ------------------------------------------- */
   const handleScrollActivity = useCallback(() => {
     const video = videoRef.current
@@ -123,17 +162,19 @@ export default function HomePage() {
     window.addEventListener('scroll', handleScrollActivity, opts)
     window.addEventListener('wheel', handleScrollActivity, opts)
     window.addEventListener('touchmove', handleScrollActivity, opts)
-    document.addEventListener('visibilitychange', () => {
+    const handleVisibility = () => {
       if (document.hidden && videoRef.current && !videoRef.current.paused) {
         videoRef.current.pause()
         setIsVideoActive(false)
         setIsScrolling(false)
       }
-    })
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
     return () => {
       window.removeEventListener('scroll', handleScrollActivity)
       window.removeEventListener('wheel', handleScrollActivity)
       window.removeEventListener('touchmove', handleScrollActivity)
+      document.removeEventListener('visibilitychange', handleVisibility)
       if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current)
     }
   }, [handleScrollActivity])
@@ -244,7 +285,11 @@ export default function HomePage() {
           {/* ─────────────────────────────────────────────────────────────
               2. BRAND CAROUSEL — horizontal drag/swipe, large logos
               ───────────────────────────────────────────────────────────── */}
-          <section className="om-section om-brands-section" aria-label="Featured Brands">
+          <section
+            ref={refBrands}
+            className="om-section om-brands-section om-reveal om-reveal--up"
+            aria-label="Featured Brands"
+          >
             <div className="om-section-bg" />
             <div className="om-container">
               <div className="om-section-header centered">
@@ -259,7 +304,11 @@ export default function HomePage() {
           {/* ─────────────────────────────────────────────────────────────
               3. DINING — compact visual row
               ───────────────────────────────────────────────────────────── */}
-          <section className="om-section om-dining-section" aria-label="Dining">
+          <section
+            ref={refDining}
+            className="om-section om-dining-section om-reveal om-reveal--left"
+            aria-label="Dining"
+          >
             <div className="om-section-bg" />
             <div className="om-container">
               <div className="om-two-col">
@@ -275,11 +324,10 @@ export default function HomePage() {
                 </div>
                 <div className="om-col-visual">
                   <img
-                    src="/images/orion/dining-rooftop.webp"
-                    alt="Rooftop dining at Orion Mall Gorakhpur"
+                    src="/images/orion/orion-dining-asian1.webp"
+                    alt="Dining experience at Orion Mall Gorakhpur"
                     className="om-visual-img"
                     loading="lazy"
-                    onError={(e) => { e.currentTarget.style.display = 'none' }}
                   />
                   <div className="om-visual-pill">
                     <span>Open until 10:30 PM</span>
@@ -292,7 +340,11 @@ export default function HomePage() {
           {/* ─────────────────────────────────────────────────────────────
               4. CINEMA — PVR INOX
               ───────────────────────────────────────────────────────────── */}
-          <section className="om-section om-cinema-section" aria-label="Cinema">
+          <section
+            ref={refCinema}
+            className="om-section om-cinema-section om-reveal om-reveal--right"
+            aria-label="Cinema"
+          >
             <div className="om-section-bg dark" />
             <div className="om-container">
               <div className="om-two-col reverse">
@@ -325,11 +377,10 @@ export default function HomePage() {
                 </div>
                 <div className="om-col-visual">
                   <img
-                    src="/images/orion/pvr-inox.webp"
-                    alt="PVR INOX cinema at Orion Mall"
+                    src="/images/entertainment/cinema.webp"
+                    alt="PVR INOX 5-screen cinema at Orion Mall"
                     className="om-visual-img"
                     loading="lazy"
-                    onError={(e) => { e.currentTarget.style.display = 'none' }}
                   />
                 </div>
               </div>
@@ -339,7 +390,11 @@ export default function HomePage() {
           {/* ─────────────────────────────────────────────────────────────
               5. FLOOR GUIDE — compact teaser
               ───────────────────────────────────────────────────────────── */}
-          <section className="om-section om-floors-section" aria-label="Floor Guide">
+          <section
+            ref={refFloors}
+            className="om-section om-floors-section om-reveal om-reveal--up"
+            aria-label="Floor Guide"
+          >
             <div className="om-section-bg" />
             <div className="om-container">
               <div className="om-section-header centered">
@@ -371,7 +426,11 @@ export default function HomePage() {
           {/* ─────────────────────────────────────────────────────────────
               6. PLAN YOUR VISIT
               ───────────────────────────────────────────────────────────── */}
-          <section className="om-section om-visit-section" aria-label="Plan Your Visit">
+          <section
+            ref={refVisit}
+            className="om-section om-visit-section om-reveal om-reveal--left"
+            aria-label="Plan Your Visit"
+          >
             <div className="om-section-bg dark" />
             <div className="om-container">
               <div className="om-two-col">
@@ -428,7 +487,6 @@ export default function HomePage() {
                     alt="Orion Mall interior corridor"
                     className="om-visual-img"
                     loading="lazy"
-                    onError={(e) => { e.currentTarget.style.display = 'none' }}
                   />
                 </div>
               </div>

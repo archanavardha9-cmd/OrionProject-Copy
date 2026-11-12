@@ -74,28 +74,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Approved Flagship Brands */}
-          <div className="om-footer-col">
-            <h4 className="om-footer-heading">APPROVED BRANDS</h4>
-            <div className="om-footer-brands-list">
-              <span>Levi's</span>
-              <span>Skechers</span>
-              <span>Crocs</span>
-              <span>Allen Solly</span>
-              <span>Peter England</span>
-              <span>Being Human</span>
-              <span>Pepe Jeans London</span>
-              <span>Van Heusen</span>
-              <span>W for Woman</span>
-              <span>Reebok</span>
-              <span>MAX Fashion</span>
-              <span>PVR INOX</span>
-              <span>KFC</span>
-              <span>Burger King</span>
-              <span>Domino's Pizza</span>
-            </div>
-          </div>
-
           {/* Location & Directions */}
           <div className="om-footer-col">
             <h4 className="om-footer-heading">VISIT THE MALL</h4>

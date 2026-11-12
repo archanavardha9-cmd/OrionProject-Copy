@@ -2,6 +2,7 @@
    HOME.CSS — Orion Mall Gorakhpur
    Cinematic scroll-driven homepage.
    The video is ALWAYS visible. Sections use semi-transparent dark backdrops.
+   REPEATABLE scroll-reveal animations via data-revealed attribute.
    ============================================================================= */
 
 /* ─── RESET / BASE ──────────────────────────────────────────────────────────── */
@@ -18,7 +19,7 @@
   inset: 0;
   z-index: 0;
   overflow: hidden;
-  background: #060a08;   /* fallback while video loads */
+  background: #060a08;
 }
 
 .om-video-el {
@@ -27,7 +28,6 @@
   object-fit: cover;
   object-position: center;
   display: block;
-  /* Slight scale prevents hairline edges on some GPUs */
   transform: scale(1.015);
   will-change: transform;
 }
@@ -133,17 +133,16 @@
   min-height: calc(100svh - 72px);
   display: flex;
   align-items: flex-end;
-  /* NO background here — video shows through completely */
 }
 
-/* Gradient at bottom so text stays readable */
+/* Strong gradient at bottom so text stays readable over video */
 .om-hero-gradient {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     to top,
-    rgba(5, 8, 6, 0.85) 0%,
-    rgba(5, 8, 6, 0.4) 40%,
+    rgba(5, 8, 6, 0.90) 0%,
+    rgba(5, 8, 6, 0.45) 45%,
     transparent 100%
   );
   pointer-events: none;
@@ -208,23 +207,116 @@
   50%       { transform: translateY(8px); }
 }
 
-/* ─── 5. GLOBAL SECTION PATTERNS ───────────────────────────────────────────── */
+/* ─── 5. SCROLL-REVEAL SYSTEM ───────────────────────────────────────────────── */
+/*
+  .om-reveal = base hidden state (applied via CSS, not JS)
+  .om-reveal--up   = slides + scales up from below
+  .om-reveal--left = slides in from the right (text-left sections)
+  .om-reveal--right= slides in from the left  (text-right sections)
+
+  When IntersectionObserver sets data-revealed="true", the element animates in.
+  When it leaves the viewport, the attribute is removed — animation resets.
+  Next scroll into view triggers the entrance again.
+*/
+
+/* Hidden / initial state — before reveal */
+.om-reveal {
+  opacity: 0;
+  will-change: opacity, transform;
+  transition:
+    opacity 0.75s cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 0.75s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* Direction variants — initial transform offsets */
+.om-reveal--up {
+  transform: translateY(70px) scale(0.96);
+}
+.om-reveal--left {
+  transform: translateX(80px) translateY(30px) rotateY(-4deg) scale(0.97);
+  transform-origin: right center;
+}
+.om-reveal--right {
+  transform: translateX(-80px) translateY(30px) rotateY(4deg) scale(0.97);
+  transform-origin: left center;
+}
+
+/* Revealed state — smooth entrance */
+.om-reveal[data-revealed="true"] {
+  opacity: 1;
+  transform: translateY(0) translateX(0) rotateY(0deg) scale(1);
+}
+
+/* Staggered child animations for inner elements */
+.om-reveal[data-revealed="true"] .om-eyebrow {
+  animation: childSlideUp 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) 0.05s both;
+}
+.om-reveal[data-revealed="true"] .om-section-h2 {
+  animation: childSlideUp 0.6s cubic-bezier(0.22, 0.61, 0.36, 1) 0.12s both;
+}
+.om-reveal[data-revealed="true"] .om-section-sub {
+  animation: childSlideUp 0.6s cubic-bezier(0.22, 0.61, 0.36, 1) 0.2s both;
+}
+.om-reveal[data-revealed="true"] .om-link-arrow,
+.om-reveal[data-revealed="true"] .om-ctas-row,
+.om-reveal[data-revealed="true"] .om-movie-tabs {
+  animation: childSlideUp 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) 0.28s both;
+}
+.om-reveal[data-revealed="true"] .om-col-visual {
+  animation: childScaleIn 0.75s cubic-bezier(0.22, 0.61, 0.36, 1) 0.1s both;
+}
+.om-reveal[data-revealed="true"] .om-brand-carousel {
+  animation: childSlideUp 0.65s cubic-bezier(0.22, 0.61, 0.36, 1) 0.15s both;
+}
+.om-reveal[data-revealed="true"] .om-floors-row {
+  animation: childSlideUp 0.6s cubic-bezier(0.22, 0.61, 0.36, 1) 0.18s both;
+}
+.om-reveal[data-revealed="true"] .om-floor-detail {
+  animation: childSlideUp 0.6s cubic-bezier(0.22, 0.61, 0.36, 1) 0.3s both;
+}
+
+@keyframes childSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes childScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+}
+
+/* ─── 6. GLOBAL SECTION PATTERNS ───────────────────────────────────────────── */
 .om-section {
   position: relative;
   padding: clamp(70px, 9vw, 110px) 0;
+  /* perspective for 3D child rotations */
+  perspective: 1200px;
 }
 
-/* Semi-transparent dark backdrop — video always bleeds through */
+/*
+  Semi-transparent dark backdrop — REDUCED from 0.68/0.78 to 0.42/0.52
+  so the video bleeds through much more visibly.
+*/
 .om-section-bg {
   position: absolute;
   inset: 0;
-  background: rgba(6, 10, 7, 0.68);
-  backdrop-filter: blur(0px);
-  -webkit-backdrop-filter: blur(0px);
+  background: rgba(6, 10, 7, 0.42);
   pointer-events: none;
 }
 .om-section-bg.dark {
-  background: rgba(4, 7, 5, 0.78);
+  background: rgba(4, 7, 5, 0.52);
 }
 
 .om-container {
@@ -256,7 +348,7 @@
 
 .om-section-sub {
   font-size: clamp(0.95rem, 1.3vw, 1.1rem);
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.65);
   line-height: 1.6;
   max-width: 540px;
 }
@@ -264,7 +356,7 @@
   margin: 0 auto;
 }
 
-/* ─── 6. BUTTONS ────────────────────────────────────────────────────────────── */
+/* ─── 7. BUTTONS ────────────────────────────────────────────────────────────── */
 .om-btn-primary {
   display: inline-flex;
   align-items: center;
@@ -324,7 +416,7 @@
   margin-top: 28px;
 }
 
-/* ─── 7. BRAND CAROUSEL ─────────────────────────────────────────────────────── */
+/* ─── 8. BRAND CAROUSEL ─────────────────────────────────────────────────────── */
 .om-brands-section {
   overflow: hidden;
 }
@@ -365,7 +457,7 @@
   align-items: center;
   justify-content: center;
   filter: brightness(0) invert(1);
-  opacity: 0.75;
+  opacity: 0.8;
   transition: opacity 0.25s, filter 0.25s;
 }
 .om-brand-item:hover .om-brand-logo-wrap {
@@ -382,7 +474,7 @@
 .om-brand-fallback {
   font-size: 1.1rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.85);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -392,18 +484,18 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .om-brand-tagline {
   font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.38);
   text-align: center;
   max-width: 140px;
   line-height: 1.4;
 }
 
-/* ─── 8. TWO-COLUMN LAYOUT (Dining, Cinema, Visit) ──────────────────────────── */
+/* ─── 9. TWO-COLUMN LAYOUT (Dining, Cinema, Visit) ──────────────────────────── */
 .om-two-col {
   display: grid;
   grid-template-columns: 1fr;
@@ -439,7 +531,7 @@
   transition: transform 0.6s ease;
 }
 .om-col-visual:hover .om-visual-img {
-  transform: scale(1.04);
+  transform: scale(1.05);
 }
 
 .om-visual-pill {
@@ -458,7 +550,7 @@
   border: 1px solid rgba(200, 151, 78, 0.3);
 }
 
-/* ─── 9. CINEMA SECTION ─────────────────────────────────────────────────────── */
+/* ─── 10. CINEMA SECTION ─────────────────────────────────────────────────────── */
 .om-movie-tabs {
   display: flex;
   gap: 8px;
@@ -510,7 +602,7 @@
   text-transform: uppercase;
 }
 
-/* ─── 10. FLOOR GUIDE ───────────────────────────────────────────────────────── */
+/* ─── 11. FLOOR GUIDE ───────────────────────────────────────────────────────── */
 .om-floors-row {
   display: flex;
   gap: 10px;
@@ -579,7 +671,7 @@
   justify-content: center;
 }
 
-/* ─── 11. VISIT FACTS ───────────────────────────────────────────────────────── */
+/* ─── 12. VISIT FACTS ───────────────────────────────────────────────────────── */
 .om-visit-facts {
   display: flex;
   flex-direction: column;
@@ -619,4 +711,9 @@
   .om-brand-item { min-width: 140px; padding: 20px 20px; }
   .om-brand-logo-wrap { width: 80px; height: 44px; }
   .om-floor-btn { min-width: 80px; padding: 10px 12px; }
+  .om-reveal--left,
+  .om-reveal--right {
+    /* Simplify 3D on mobile to avoid jank */
+    transform: translateY(50px) scale(0.97);
+  }
 }
